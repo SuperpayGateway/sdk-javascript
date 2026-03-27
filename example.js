@@ -1,6 +1,6 @@
 'use strict';
 
-import { deposit, depositAsync, withdraw, withdrawAsync, detail, detailAsync,symDecrypt } from './gatewaySdk.js';
+import { deposit, depositAsync, withdraw, withdrawAsync, detail, detailAsync, balance, balanceAsync, symDecrypt } from './gatewaySdk.js';
 
 /**
  * Here is an example of a gateway sdk
@@ -37,6 +37,12 @@ export async function test() {
         console.log("detail result:", result);
     });
 
+    // Here is an example of a balance
+    // return balance result: code=1,message=,data={...}
+    balance((result) => {
+        console.log("balance result:", result);
+    });
+
     // Here is an example of a async deposit 
     let depositResult = await depositAsync("10001", 1.06, "MYR", "TNG_MY", "gateway Test", "gateway@hotmail.com", "0123456789");
     console.log("async deposit result:", depositResult);
@@ -48,6 +54,10 @@ export async function test() {
     // Here is an example of a async detail 
     let detailResult = await detailAsync("10854", 1);
     console.log("async detail result:", detailResult);
+
+    // Here is an example of a async balance
+    let balanceResult = await balanceAsync();
+    console.log("async balance result:", balanceResult);
 
     // Decrypt the encrypted information in the callback
     let jsonstr = symDecrypt("encryptedData .........");

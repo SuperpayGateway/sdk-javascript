@@ -240,6 +240,61 @@ export async function detailAsync(orderId, type) {
 }
 
 /**
+ * Get merchant balance
+ * @param {*} callback function
+ * @returns code,message,data
+ */
+export function balance(callback) {
+    try {
+        getToken((token) => {
+            if (isnull(token)) {
+                callback({ code: 0, message: 'token is null' });
+                return;
+            }
+            let requestUrl = "gateway/" + gatewayCfg.VERSION_NO + "/getBalance";
+            let cnst = generateConstant(requestUrl);
+            let bodyJson = "{}";
+            let base64ReqBody = sortedAfterToBased64(bodyJson);
+            let signature = createSignature(cnst, base64ReqBody);
+            let encryptData = symEncrypt(base64ReqBody);
+            let json = { data: encryptData };
+            post(requestUrl, token, signature, json, cnst.nonceStr, cnst.timestamp, (result) => {
+                if (isnull(result) || (isnull(result.encryptedData) && String(result.code) !== "1")) {
+                    callback(result);
+                    return;
+                }
+                callback({
+                    code: "0",
+                    message: result.message,
+                    data: symDecrypt(result.encryptedData),
+                });
+                return;
+            });
+        });
+    }
+    catch (error) {
+        callback({ code: 0, message: error });
+        return;
+    }
+}
+
+/**
+ * Get merchant balance
+ * @returns code,message,data
+ */
+export async function balanceAsync() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            balance((result) => {
+                return resolve(result);
+            });
+        } catch (error) {
+            return reject(error);
+        }
+    });
+}
+
+/**
  * get server token
  * @returns token
  */
